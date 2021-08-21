@@ -2,12 +2,18 @@ import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Amplify from 'aws-amplify';
+// @ts-ignore
+import { withAuthenticator } from 'aws-amplify-react-native';
 
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
+import config from './aws-exports';
 
-export default function App() {
+Amplify.configure(config);
+
+function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
@@ -22,3 +28,5 @@ export default function App() {
     );
   }
 }
+
+export default withAuthenticator(App);
