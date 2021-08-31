@@ -1,45 +1,36 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable } from 'react-native';
 import { MonoText } from '../StyledText';
 import { useNavigation } from '@react-navigation/native';
 import styles from './styles';
+import { Category, Movie } from '../../models';
+import { DataStore, Storage } from 'aws-amplify';
+import movie from '../../assets/data/movie';
+import MovieItem from '../MovieItem';
 
 interface HomeCategoryProps {
-  category: {
-    id: string;
-    title: string;
-    movies: { id: string; poster: string }[];
-  };
+  category: Category;
 }
 
 const HomeCategory = (props: HomeCategoryProps) => {
   const { category } = props;
 
-  const navigation = useNavigation();
+  const [movies, setMovies] = useState<Movie[]>([]);
 
-  const onMoviePress = (movie: { id: any; poster?: string }) => {
-    navigation.navigate('MovieDetailsScreen', { id: movie.id });
-  };
+  useEffect(() => {
+    const fetchMovies = async () => {
+      const result = (await DataStore.query(Movie)).filter((movie) => movie.categoryID === category.id);
+      setMovies(result);
+    };
+    fetchMovies();
+  }, []);
 
   return (
     <>
       <MonoText style={styles.title}>{category.title}</MonoText>
       <FlatList
-        data={category.movies}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => {
-              onMoviePress(item);
-            }}
-          >
-            <Image
-              style={styles.image}
-              source={{
-                uri: item.poster,
-              }}
-            ></Image>
-          </Pressable>
-        )}
+        data={movies}
+        renderItem={({ item }) => <MovieItem movie={item} />}
         horizontal
         showsHorizontalScrollIndicator={false}
       ></FlatList>

@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Pressable } from 'react-native';
-import { Episode } from '../../types';
+import { Episode } from '../../models';
 import { MonoText } from '../StyledText';
 import { View } from '../Themed';
 

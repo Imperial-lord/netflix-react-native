@@ -1,8 +1,10 @@
+import { Storage } from 'aws-amplify';
 import { Video, AVPlaybackStatus } from 'expo-av';
 import { Playback } from 'expo-av/build/AV';
 import React, { useRef, useState } from 'react';
 import { useEffect } from 'react';
-import { Episode } from '../../types';
+import { ActivityIndicator } from 'react-native';
+import { Episode } from '../../models';
 import { View, Text } from '../Themed';
 
 import styles from './styles';
@@ -13,16 +15,32 @@ interface VideoPlayerProps {
 
 const VideoPlayer = (props: VideoPlayerProps) => {
   const { episode } = props;
+  const [videoUrl, setVideoUrl] = useState('');
+
   const [status, setStatus] = useState({});
   const video = useRef<Playback>(null);
+
+  useEffect(() => {
+    if (episode.video.startsWith('http')) {
+      setVideoUrl(episode.video);
+      return;
+    }
+    Storage.get(episode.video)
+      .then(setVideoUrl)
+      .catch(() => {
+        console.log('Rejected');
+      });
+  }, [episode]);
 
   useEffect(() => {
     if (!video) return;
     (async () => {
       await video?.current?.unloadAsync();
-      await video?.current?.loadAsync({ uri: episode.video }, {}, false);
+      await video?.current?.loadAsync({ uri: videoUrl }, {}, false);
     })();
-  }, [episode]);
+  }, [videoUrl]);
+
+  if (!video) return <ActivityIndicator color="white" />;
 
   return (
     <View>
@@ -30,7 +48,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
         ref={video}
         style={styles.video}
         source={{
-          uri: episode.video,
+          uri: videoUrl,
         }}
         posterSource={{ uri: episode.poster }}
         posterStyle={{ resizeMode: 'cover' }}

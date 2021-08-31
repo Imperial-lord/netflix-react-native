@@ -1,0 +1,13 @@
+projects:
+  netflix:
+    schemaPath: >-
+      home/imperial_lord/Projects/netflix-react-native/netflix/graphql/schema.json
+    includes:
+      - src/graphql/**/*.ts
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        codeGenTarget: typescript
+        generatedFileName: src/API.ts
+        docsFilePath: src/graphql
